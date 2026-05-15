@@ -3,45 +3,44 @@ repo: transcriptlab-status
 
 sites:
   - name: Marketing site
-    url: https://transcriptlab.app/
+    url: https://transcriptlab.netlify.app/
 
   - name: Application (dashboard)
-    url: https://transcriptlab.app/dashboard
+    url: https://transcriptlab.netlify.app/dashboard
     expectedStatusCodes:
       - 200
       - 302
       - 307
 
   - name: API health (Firestore probe)
-    url: https://transcriptlab.app/api/health
+    url: https://transcriptlab.netlify.app/api/health
 
   - name: Polar billing webhook
-    url: https://transcriptlab.app/api/billing/webhook
+    url: https://transcriptlab.netlify.app/api/billing/webhook
     expectedStatusCodes:
       - 405
 
   - name: Keygen license webhook
-    url: https://transcriptlab.app/api/keygen/webhook
+    url: https://transcriptlab.netlify.app/api/keygen/webhook
     expectedStatusCodes:
       - 405
 
   - name: License activation
-    url: https://transcriptlab.app/api/license/activate
+    url: https://transcriptlab.netlify.app/api/license/activate
     expectedStatusCodes:
       - 405
 
 status-website:
-  cname: status.transcriptlab.app
   name: TranscriptLab Status
   introTitle: "**TranscriptLab Status** — real-time uptime and incident history."
   introMessage: |
     This page is checked every 5 minutes by GitHub Actions. Data is committed to
     the [status repository](https://github.com/codifyrlabs/transcriptlab-status)
-    and the application itself lives at [transcriptlab.app](https://transcriptlab.app).
+    and the application itself lives at [transcriptlab.netlify.app](https://transcriptlab.netlify.app).
   navbar:
     - title: Status
       href: /
     - title: TranscriptLab
-      href: https://transcriptlab.app
+      href: https://transcriptlab.netlify.app
     - title: GitHub
       href: https://github.com/codifyrlabs/transcriptlab-status
