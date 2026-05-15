@@ -31,6 +31,7 @@ sites:
       - 405
 
 status-website:
+  baseUrl: /transcriptlab-status
   name: TranscriptLab Status
   introTitle: "**TranscriptLab Status** — real-time uptime and incident history."
   introMessage: |
