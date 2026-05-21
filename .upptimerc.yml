@@ -61,26 +61,17 @@ status-website:
   customHeadHtml: |
     <meta name="theme-color" content="#5b6ee0">
 
-  customBodyHtml: |
-    <button id="tl-theme-toggle" aria-label="Toggle light/dark mode">
-      <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="12" cy="12" r="4"/>
-        <path d="M12 2v2"/><path d="M12 20v2"/>
-        <path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/>
-        <path d="M2 12h2"/><path d="M20 12h2"/>
-        <path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
-      </svg>
-      <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
-      </svg>
-      <span class="sr-only">Toggle theme</span>
-    </button>
+  # NOTE: the theme toggle button is NOT declared in `customBodyHtml`. Upptime
+  # injects `customBodyHtml` inside `<div id=sapper>`, which Svelte wipes on
+  # hydration. The JS below builds the button as a direct child of `<body>`
+  # instead — outside Sapper's domain, so it survives hydration.
 
   js: |
     (function() {
+      var SVG_NS = 'http://www.w3.org/2000/svg';
       function syncThemeLinks(theme) {
-        document.querySelectorAll('link[href*="themes/light.css"]').forEach(l => l.media = theme === 'light' ? 'all' : 'not all');
-        document.querySelectorAll('link[href*="themes/dark.css"]').forEach(l => l.media = theme === 'dark' ? 'all' : 'not all');
+        document.querySelectorAll('link[href*="themes/light.css"]').forEach(function (l) { l.media = theme === 'light' ? 'all' : 'not all'; });
+        document.querySelectorAll('link[href*="themes/dark.css"]').forEach(function (l) { l.media = theme === 'dark' ? 'all' : 'not all'; });
       }
       function setTheme(theme) {
         document.documentElement.dataset.theme = theme;
@@ -91,16 +82,55 @@ status-website:
       try { initial = localStorage.getItem('tl-theme'); } catch (e) {}
       setTheme(initial || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
 
-      function wire() {
-        var btn = document.getElementById('tl-theme-toggle');
-        if (!btn || btn.dataset.wired) return;
-        btn.dataset.wired = '1';
+      function svgIcon(cls, pathDs) {
+        var svg = document.createElementNS(SVG_NS, 'svg');
+        svg.setAttribute('class', cls);
+        svg.setAttribute('viewBox', '0 0 24 24');
+        svg.setAttribute('fill', 'none');
+        svg.setAttribute('stroke', 'currentColor');
+        svg.setAttribute('stroke-width', '2');
+        svg.setAttribute('stroke-linecap', 'round');
+        svg.setAttribute('stroke-linejoin', 'round');
+        svg.setAttribute('aria-hidden', 'true');
+        pathDs.forEach(function (d) {
+          if (d.circle) {
+            var c = document.createElementNS(SVG_NS, 'circle');
+            c.setAttribute('cx', d.circle[0]); c.setAttribute('cy', d.circle[1]); c.setAttribute('r', d.circle[2]);
+            svg.appendChild(c);
+          } else {
+            var p = document.createElementNS(SVG_NS, 'path');
+            p.setAttribute('d', d);
+            svg.appendChild(p);
+          }
+        });
+        return svg;
+      }
+      function mountToggle() {
+        if (!document.body || document.getElementById('tl-theme-toggle')) return;
+        var btn = document.createElement('button');
+        btn.id = 'tl-theme-toggle';
+        btn.setAttribute('aria-label', 'Toggle light/dark mode');
+        btn.appendChild(svgIcon('icon-sun', [
+          { circle: ['12', '12', '4'] },
+          'M12 2v2', 'M12 20v2',
+          'm4.93 4.93 1.41 1.41', 'm17.66 17.66 1.41 1.41',
+          'M2 12h2', 'M20 12h2',
+          'm6.34 17.66-1.41 1.41', 'm19.07 4.93-1.41 1.41'
+        ]));
+        btn.appendChild(svgIcon('icon-moon', [
+          'M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z'
+        ]));
+        var sr = document.createElement('span');
+        sr.className = 'sr-only';
+        sr.textContent = 'Toggle theme';
+        btn.appendChild(sr);
         btn.addEventListener('click', function () {
           setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
         });
+        document.body.appendChild(btn);
       }
-      if (document.readyState !== 'loading') wire();
-      else document.addEventListener('DOMContentLoaded', wire);
+      if (document.body) mountToggle();
+      else document.addEventListener('DOMContentLoaded', mountToggle);
     })();
 
   css: |
