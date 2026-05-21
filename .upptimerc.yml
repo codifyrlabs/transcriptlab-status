@@ -2,7 +2,7 @@ owner: codifyrlabs
 repo: transcriptlab-status
 
 sites:
-  - name: Marketing site
+  - name: Homepage
     url: https://transcriptlab.app/
 
   - name: Application (dashboard)
@@ -33,15 +33,173 @@ sites:
 status-website:
   cname: status.transcriptlab.app
   name: TranscriptLab Status
+  theme: dark
+  faviconSvg: https://transcriptlab.app/icon.svg
   introTitle: "**TranscriptLab Status** — real-time uptime and incident history."
   introMessage: |
     This page is checked every 5 minutes by GitHub Actions. Data is committed to
     the [status repository](https://github.com/codifyrlabs/transcriptlab-status)
     and the application itself lives at [transcriptlab.app](https://transcriptlab.app).
+
   navbar:
     - title: Status
       href: /
-    - title: TranscriptLab
+    - title: Visit site
       href: https://transcriptlab.app
     - title: GitHub
       href: https://github.com/codifyrlabs/transcriptlab-status
+
+  links:
+    - rel: preconnect
+      href: https://fonts.googleapis.com
+    - rel: preconnect
+      href: https://fonts.gstatic.com
+      crossorigin: ""
+    - rel: stylesheet
+      href: https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap
+
+  customHeadHtml: |
+    <meta name="theme-color" content="#5b6ee0">
+
+  customBodyHtml: |
+    <button id="tl-theme-toggle" aria-label="Toggle light/dark mode">
+      <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="4"/>
+        <path d="M12 2v2"/><path d="M12 20v2"/>
+        <path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/>
+        <path d="M2 12h2"/><path d="M20 12h2"/>
+        <path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
+      </svg>
+      <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+      </svg>
+      <span class="sr-only">Toggle theme</span>
+    </button>
+
+  js: |
+    (function() {
+      function syncThemeLinks(theme) {
+        document.querySelectorAll('link[href*="themes/light.css"]').forEach(l => l.media = theme === 'light' ? 'all' : 'not all');
+        document.querySelectorAll('link[href*="themes/dark.css"]').forEach(l => l.media = theme === 'dark' ? 'all' : 'not all');
+      }
+      function setTheme(theme) {
+        document.documentElement.dataset.theme = theme;
+        try { localStorage.setItem('tl-theme', theme); } catch (e) {}
+        syncThemeLinks(theme);
+      }
+      var initial;
+      try { initial = localStorage.getItem('tl-theme'); } catch (e) {}
+      setTheme(initial || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+
+      function wire() {
+        var btn = document.getElementById('tl-theme-toggle');
+        if (!btn || btn.dataset.wired) return;
+        btn.dataset.wired = '1';
+        btn.addEventListener('click', function () {
+          setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+        });
+      }
+      if (document.readyState !== 'loading') wire();
+      else document.addEventListener('DOMContentLoaded', wire);
+    })();
+
+  css: |
+    /* ============= DARK MODE TOKENS (TL globals.css .dark) ============= */
+    html[data-theme="dark"], html[data-theme="dark"] :root {
+      --body-background-color:           hsl(235, 25%, 10%) !important;
+      --body-text-color:                 hsl(220, 15%, 90%) !important;
+      --card-background-color:           hsl(235, 20%, 14%) !important;
+      --card-border-color:               hsl(235, 15%, 22%) !important;
+      --nav-background-color:            hsl(235, 20%, 14%) !important;
+      --nav-border-bottom-color:         hsl(235, 15%, 22%) !important;
+      --nav-current-border-bottom-color: hsl(235, 70%, 65%) !important;
+      --up-border-left-color:            hsl(150, 60%, 50%) !important;
+      --down-border-left-color:          hsl(0,   72%, 60%) !important;
+      --down-background-color:           hsla(0,  72%, 30%, 0.40) !important;
+      --degraded-border-left-color:      hsl(38,  90%, 50%) !important;
+      --tag-color:                       hsl(235, 25%, 10%) !important;
+      --tag-up-background-color:         hsl(150, 60%, 50%) !important;
+      --tag-down-background-color:       hsl(0,   72%, 60%) !important;
+      --tag-degraded-background-color:   hsl(38,  90%, 50%) !important;
+      --change-background-color:         hsl(38,  90%, 50%) !important;
+      --error-button-background-color:   hsl(235, 70%, 65%) !important;
+      --submit-button-background-color:  hsl(235, 70%, 65%) !important;
+    }
+    html[data-theme="dark"] body { background-color: hsl(235, 25%, 10%) !important; color: hsl(220, 15%, 90%) !important; }
+    html[data-theme="dark"] nav { background-color: hsla(235, 20%, 14%, 0.85) !important; border-bottom: 1px solid hsl(235, 15%, 22%) !important; }
+    html[data-theme="dark"] a { color: hsl(235, 70%, 72%) !important; }
+
+    /* ============= LIGHT MODE TOKENS (TL globals.css :root) ============= */
+    html[data-theme="light"], html[data-theme="light"] :root {
+      --body-background-color:           hsl(0,   0%,  100%) !important;
+      --body-text-color:                 hsl(235, 25%, 12%)  !important;
+      --card-background-color:           hsl(0,   0%,  100%) !important;
+      --card-border-color:               hsl(220, 15%, 90%)  !important;
+      --nav-background-color:            hsl(0,   0%,  100%) !important;
+      --nav-border-bottom-color:         hsl(220, 15%, 90%)  !important;
+      --nav-current-border-bottom-color: hsl(235, 50%, 58%)  !important;
+      --up-border-left-color:            hsl(150, 55%, 40%)  !important;
+      --down-border-left-color:          hsl(0,   72%, 51%)  !important;
+      --down-background-color:           hsla(0,  72%, 90%, 0.50) !important;
+      --degraded-border-left-color:      hsl(38,  95%, 55%)  !important;
+      --tag-color:                       hsl(0,   0%,  100%) !important;
+      --tag-up-background-color:         hsl(150, 55%, 40%)  !important;
+      --tag-down-background-color:       hsl(0,   72%, 51%)  !important;
+      --tag-degraded-background-color:   hsl(38,  95%, 55%)  !important;
+      --change-background-color:         hsl(38,  95%, 55%)  !important;
+      --error-button-background-color:   hsl(235, 50%, 58%)  !important;
+      --submit-button-background-color:  hsl(235, 50%, 58%)  !important;
+    }
+    html[data-theme="light"] body { background-color: hsl(0, 0%, 100%) !important; color: hsl(235, 25%, 12%) !important; }
+    html[data-theme="light"] nav { background-color: hsla(0, 0%, 100%, 0.85) !important; border-bottom: 1px solid hsl(220, 15%, 90%) !important; }
+    html[data-theme="light"] a { color: hsl(235, 50%, 50%) !important; }
+
+    /* ============= SHARED ============= */
+    html, body { font-family: 'Inter', system-ui, -apple-system, sans-serif !important; }
+    h1, h2, h3, h4 { font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif !important; letter-spacing: -0.015em; }
+    nav { backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+    section > div, section article { border-radius: 12px !important; }
+
+    /* === Brand mark in nav (CSS pseudo-element — survives Svelte re-renders) === */
+    nav .container { position: relative; padding-left: 200px !important; }
+    nav .container::before {
+      content: "TranscriptLab";
+      position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+      display: inline-flex; align-items: center; padding-left: 38px;
+      font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 17px;
+      letter-spacing: -0.01em; line-height: 1;
+      color: var(--body-text-color);
+      background-image: url('https://transcriptlab.app/icon.svg');
+      background-repeat: no-repeat; background-position: left center; background-size: 28px 28px;
+      min-height: 28px; pointer-events: none;
+    }
+    @media (max-width: 520px) {
+      nav .container { padding-left: 60px !important; }
+      nav .container::before { content: ""; padding-left: 28px; }
+    }
+
+    /* === Theme toggle button === */
+    #tl-theme-toggle {
+      position: fixed; top: 14px; right: 14px; z-index: 9999;
+      width: 36px; height: 36px; border-radius: 999px;
+      border: 1px solid var(--card-border-color);
+      background: var(--card-background-color); color: var(--body-text-color);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: transform 0.15s ease;
+      box-shadow: 0 4px 16px hsla(0, 0%, 0%, 0.25);
+    }
+    #tl-theme-toggle:hover { transform: scale(1.08); }
+    #tl-theme-toggle svg {
+      position: absolute; width: 18px; height: 18px;
+      transition: transform 0.35s ease, opacity 0.25s ease;
+      color: var(--body-text-color);
+    }
+    /* Action-oriented: icon shows the mode you'll switch TO on click */
+    html[data-theme="light"] #tl-theme-toggle .icon-sun  { transform: rotate(-90deg) scale(0); opacity: 0; }
+    html[data-theme="light"] #tl-theme-toggle .icon-moon { transform: rotate(0)      scale(1); opacity: 1; }
+    html[data-theme="dark"]  #tl-theme-toggle .icon-sun  { transform: rotate(0)      scale(1); opacity: 1; }
+    html[data-theme="dark"]  #tl-theme-toggle .icon-moon { transform: rotate(90deg)  scale(0); opacity: 0; }
+    #tl-theme-toggle .sr-only {
+      position: absolute; width: 1px; height: 1px; overflow: hidden;
+      clip: rect(0, 0, 0, 0); white-space: nowrap;
+    }
